@@ -9,9 +9,10 @@ class Day2 {
         int validSequences = 0;
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
-            
+            boolean result;
             while ((line = br.readLine()) != null) {
-                validSequences += validateSequence(line) ? 1 : 0;
+                result = validateSequence(line);
+                validSequences += result ? 1 : 0;
             }
         } catch (IOException exception) {
             System.err.println(exception);
@@ -24,25 +25,29 @@ class Day2 {
         String[] splitValues = sequence.split("\\s+");
 
         int difference = Integer.parseInt(splitValues[0]) - Integer.parseInt(splitValues[1]);
-        if (Math.abs(difference) > 3 || difference == 0) return false;
 
         if (difference < 0) {
-            return isValidIncreasingSequence(splitValues, true);
+            return isValidSequence(splitValues, true, false) ||
+                    isValidSequence(dampen(splitValues, 0), true, true)||
+                    isValidSequence(dampen(splitValues, 0), false, true);
         } else {
-            return isValidDecreasingSequence(splitValues, true);
+            return isValidSequence(splitValues, false, false) ||
+                    isValidSequence(dampen(splitValues, 0), false, true)||
+                    isValidSequence(dampen(splitValues, 0), true, true);
         }
     }
 
-    private static boolean isValidIncreasingSequence(String[] numbers, boolean firstTime) {
+    private static boolean isValidSequence(String[] numbers, boolean increasing, boolean isNumbersModified) {
         int difference;
         for (int i = 0; i < numbers.length - 1; i++) {
             difference = Integer.parseInt(numbers[i]) - Integer.parseInt(numbers[i+1]);
-            if (difference >= -3 && difference < 0) continue;
 
-            if (firstTime) {
-                return false;
-                // return isValidIncreasingSequence(dampen(numbers, i), false) ||
-                //         isValidIncreasingSequence(dampen(numbers, i+1), false);
+            if (increasing && (difference >= -3 && difference < 0)) continue;
+
+            else if (!increasing && (difference <= 3 && difference > 0)) continue;
+
+            if (!isNumbersModified) {
+                return isValidDampenedSequence(numbers, increasing, i);
             }
 
             return false;
@@ -51,23 +56,13 @@ class Day2 {
         return true;
     }
 
-    private static boolean isValidDecreasingSequence(String[] numbers, boolean firstTime) {
-        int difference;
-        for (int i = 0; i < numbers.length - 1; i++) {
-            difference = Integer.parseInt(numbers[i]) - Integer.parseInt(numbers[i+1]);
-
-            if (difference <= 3 && difference > 0) continue;
-
-            if (firstTime) {
-                return false;
-                // return isValidDecreasingSequence(dampen(numbers, i), false) ||
-                //         isValidDecreasingSequence(dampen(numbers, i+1), false);
-            }
-
-            return false;
-        }
-
-        return true;
+    private static boolean isValidDampenedSequence(String[] numbers, boolean increasing, int index) {
+        return isValidSequence(dampen(numbers, 0), true, true) ||
+        isValidSequence(dampen(numbers, index), true, true) ||
+        isValidSequence(dampen(numbers, index+1), true, true) ||
+        isValidSequence(dampen(numbers, 0), false, true) ||
+        isValidSequence(dampen(numbers, index), false, true) ||
+        isValidSequence(dampen(numbers, index+1), false, true);
     }
 
     private static String[] dampen(String[] numbers, int index) {
@@ -81,6 +76,6 @@ class Day2 {
     }
 
     public static void main(String[] args) {
-        partOne("/workspaces/aoc-2024/Day2/dayTwoInput.txt");
+        partOne("C:\\Users\\J\\source\\repos\\aoc-2024\\Day2\\dayTwoInput.txt");
     }
 }
