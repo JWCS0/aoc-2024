@@ -21,7 +21,6 @@ def isInBounds(Y, X):
     return Y > minCoord and Y < maxCoord-1 and X > minCoord and X < maxCoord-1
 
 def charInDirection(array, originY, originX, direction):
-    print(originX, originY)
     return array[originY + directions[direction][0]][originX + directions[direction][1]]
 
 def isXmas(array, originY, originX):
