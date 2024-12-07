@@ -11,13 +11,20 @@ with open("C:\\Users\\J\\source\\repos\\aoc-2024\\Day7\\daySevenInput.txt") as f
 
 def method(list: list, runningTotal, results: set, index):
     if index >= len(list) - 1:
-        results.add(runningTotal + list[index])
-        results.add(runningTotal * list[index] if runningTotal > 0 else list[index])
+        if index == len(list) - 1:
+            results.add(runningTotal + list[index])
+            results.add(int(f"{runningTotal}{list[index]}"))
+            results.add(runningTotal * list[index] if runningTotal > 0 else list[index])
+        else:
+            results.add(runningTotal)
         return
     
     if runningTotal > target:
         return
-    
+    if index == 0:
+        method(list, int(f"{list[index]}{list[index+1]}"), results, index + 2)
+    else:
+        method(list, int(f"{runningTotal}{list[index]}"), results, index + 1)
     method(list, runningTotal + list[index], results, index + 1)
     method(list, runningTotal * list[index] if runningTotal > 0 else list[index], results, index + 1)
 
