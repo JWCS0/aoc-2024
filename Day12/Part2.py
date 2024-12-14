@@ -3,7 +3,7 @@ def printMap(map):
     for row in map:
         print(row)
 
-with open("/home/j/aoc2024/aoc-2024/Day12/mini2.txt", "r") as file:
+with open("Day12\ecase.txt", "r") as file:
     for line in file:
         map.append(list(line.strip()))
 
@@ -22,10 +22,10 @@ class Region():
         pass
 
     def __str__(self) -> str:
-        return str(self.plant) + " " + str(self.positions) + " " + str(self.area) + " " + str(self.sides)
+        return "\nPlant: " + str(self.plant) + "| Positions: " + str(self.positions) + " | Area: " + str(self.area) + " | Sides: " + str(self.sides)
 
     def __repr__(self) -> str:
-        return str(self.plant) + " " + str(self.positions) + " " + str(self.area) + " " + str(self.sides)
+        return "\nPlant: " + str(self.plant) + "| Positions: " + str(self.positions) + " | Area: " + str(self.area) + " | Sides: " + str(self.sides)
 
 def isInBounds(y, x, matrix):
     return y >= 0 and x >= 0 and y < len(matrix) and x < len(matrix[0])
@@ -63,7 +63,6 @@ for plant in plantLocationMap:
         startLocationY = int(startLocationString.split(",")[0])
         startLocationX = int(startLocationString.split(",")[1])
         currentArea = getArea(startLocationY, startLocationX, locationsOfPlant, positionsInRegion)
-        positionsInRegion.sort()
         groupings.append(Region(currentArea, positionsInRegion, plant))
 
 directions = {
@@ -72,6 +71,28 @@ directions = {
     "E":[0, 1],
     "W":[0, -1]
 }
+
+def advanceBorder(position:str):
+    splitPosition = position.split(",")
+    direction = splitPosition[0]
+    y = int(splitPosition[1])
+    x = int(splitPosition[2])
+
+    if direction == "N" or direction == "S":
+        return direction + "," + str(y) + "," + str(x+1)
+    else:
+        return direction + "," + str(y+1) + "," + str(x)
+    
+def retreatBorder(position:str):
+    splitPosition = position.split(",")
+    direction = splitPosition[0]
+    y = int(splitPosition[1])
+    x = int(splitPosition[2])
+
+    if direction == "N" or direction == "S":
+        return direction + "," + str(y) + "," + str(x-1)
+    else:
+        return direction + "," + str(y-1) + "," + str(x)
 
 def updateSides(region:Region):
     borders = set()
@@ -85,20 +106,29 @@ def updateSides(region:Region):
             newY = y + directions[direction][0]
             newX = x + directions[direction][1]
 
-            bordering = direction+str(newX) if direction == "W" or direction == "E" else direction+(str(newY))
-            print(bordering)
+            bordering = direction+","+str(newY)+","+str(newX)
             
-            if not (newY >= 0 and newX >= 0 and newY < len(map) and newX < len(map[0])):
-                borders.add(bordering)
-                continue
-
-            if map[newY][newX] != currentPlant:
+            if not (newY >= 0 and newX >= 0 and newY < len(map) and newX < len(map[0])) or map[newY][newX] != currentPlant:
                 borders.add(bordering)
 
-            
-        print(position, len(borders))
+    trueBorders = 0
 
-    region.sides = len(borders)
+    while len(borders) > 0:
+        currentBorder = borders.pop()
+
+        nextBorder = advanceBorder(currentBorder)
+        while nextBorder in borders:
+            borders.remove(nextBorder)
+            nextBorder = advanceBorder(nextBorder)
+
+        prevBorder = retreatBorder(currentBorder)
+        while prevBorder in borders:
+            borders.remove(prevBorder)
+            prevBorder = retreatBorder(currentBorder)
+        
+        trueBorders += 1
+
+    region.sides = trueBorders
 
 totalCost = 0
 for region in groupings:
@@ -107,4 +137,4 @@ for region in groupings:
     
 print(totalCost)
 
-
+print(groupings)
