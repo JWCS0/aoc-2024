@@ -3,7 +3,7 @@ def printMap(map):
     for row in map:
         print(row)
 
-with open("Day12\ecase.txt", "r") as file:
+with open("Day12\input.txt", "r") as file:
     for line in file:
         map.append(list(line.strip()))
 
@@ -124,7 +124,7 @@ def updateSides(region:Region):
         prevBorder = retreatBorder(currentBorder)
         while prevBorder in borders:
             borders.remove(prevBorder)
-            prevBorder = retreatBorder(currentBorder)
+            prevBorder = retreatBorder(prevBorder)
         
         trueBorders += 1
 
@@ -136,5 +136,3 @@ for region in groupings:
     totalCost += region.sides * region.area
     
 print(totalCost)
-
-print(groupings)
